@@ -11,8 +11,12 @@ config_version=4
 [application]
 
 config/name="life-manager"
-run/main_scene="res://Scenes/Root.tscn"
+run/main_scene="res://Main/Main.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+Root="*res://Root/Root.gd"
 
 [gui]
 
