@@ -1,0 +1,74 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://TodoView/TodoView.gd" type="Script" id=1]
+[ext_resource path="res://TodoView/Edit.gd" type="Script" id=2]
+[ext_resource path="res://TodoView/Add.gd" type="Script" id=3]
+
+[node name="TodoView" type="VBoxContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+script = ExtResource( 1 )
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="."]
+margin_right = 1016.0
+margin_bottom = 22.0
+
+[node name="Add" type="ToolButton" parent="HBoxContainer2"]
+margin_right = 37.0
+margin_bottom = 22.0
+text = "Add"
+script = ExtResource( 3 )
+
+[node name="Edit" type="ToolButton" parent="HBoxContainer2"]
+margin_left = 41.0
+margin_right = 77.0
+margin_bottom = 22.0
+text = "Edit"
+script = ExtResource( 2 )
+
+[node name="Todo" type="Tree" parent="."]
+margin_top = 26.0
+margin_right = 1016.0
+margin_bottom = 540.0
+size_flags_vertical = 3
+columns = 6
+column_titles_visible = true
+hide_root = true
+select_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+margin_top = 544.0
+margin_right = 1016.0
+margin_bottom = 564.0
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+margin_top = 3.0
+margin_right = 877.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+text = "Current task is: None"
+
+[node name="Start" type="Button" parent="HBoxContainer"]
+margin_left = 881.0
+margin_right = 922.0
+margin_bottom = 20.0
+text = "Start"
+
+[node name="Stop" type="Button" parent="HBoxContainer"]
+margin_left = 926.0
+margin_right = 966.0
+margin_bottom = 20.0
+text = "Stop"
+
+[node name="Done" type="Button" parent="HBoxContainer"]
+margin_left = 970.0
+margin_right = 1016.0
+margin_bottom = 20.0
+text = "Done"
+
+[connection signal="button_up" from="HBoxContainer2/Add" to="HBoxContainer2/Add" method="_on_Add_button_up"]
+[connection signal="button_up" from="HBoxContainer2/Edit" to="HBoxContainer2/Edit" method="_on_Edit_button_up"]
