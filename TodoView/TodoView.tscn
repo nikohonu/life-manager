@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://TodoView/TodoView.gd" type="Script" id=1]
 [ext_resource path="res://TodoView/Edit.gd" type="Script" id=2]
 [ext_resource path="res://TodoView/Add.gd" type="Script" id=3]
+[ext_resource path="res://TodoView/Done.gd" type="Script" id=4]
 
 [node name="TodoView" type="VBoxContainer"]
 anchor_right = 1.0
@@ -69,6 +70,8 @@ margin_left = 970.0
 margin_right = 1016.0
 margin_bottom = 20.0
 text = "Done"
+script = ExtResource( 4 )
 
 [connection signal="button_up" from="HBoxContainer2/Add" to="HBoxContainer2/Add" method="_on_Add_button_up"]
 [connection signal="button_up" from="HBoxContainer2/Edit" to="HBoxContainer2/Edit" method="_on_Edit_button_up"]
+[connection signal="button_up" from="HBoxContainer/Done" to="HBoxContainer/Done" method="_on_Done_button_up"]
