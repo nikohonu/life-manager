@@ -1,9 +1,12 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://TodoView/TodoView.gd" type="Script" id=1]
 [ext_resource path="res://TodoView/Edit.gd" type="Script" id=2]
 [ext_resource path="res://TodoView/Add.gd" type="Script" id=3]
 [ext_resource path="res://TodoView/Done.gd" type="Script" id=4]
+[ext_resource path="res://TodoView/Start.gd" type="Script" id=5]
+[ext_resource path="res://TodoView/Stop.gd" type="Script" id=6]
+[ext_resource path="res://TodoView/UpdateStatus.gd" type="Script" id=7]
 
 [node name="TodoView" type="VBoxContainer"]
 anchor_right = 1.0
@@ -58,12 +61,14 @@ margin_left = 881.0
 margin_right = 922.0
 margin_bottom = 20.0
 text = "Start"
+script = ExtResource( 5 )
 
 [node name="Stop" type="Button" parent="HBoxContainer"]
 margin_left = 926.0
 margin_right = 966.0
 margin_bottom = 20.0
 text = "Stop"
+script = ExtResource( 6 )
 
 [node name="Done" type="Button" parent="HBoxContainer"]
 margin_left = 970.0
@@ -72,6 +77,13 @@ margin_bottom = 20.0
 text = "Done"
 script = ExtResource( 4 )
 
+[node name="UpdateStatus" type="Timer" parent="."]
+autostart = true
+script = ExtResource( 7 )
+
 [connection signal="button_up" from="HBoxContainer2/Add" to="HBoxContainer2/Add" method="_on_Add_button_up"]
 [connection signal="button_up" from="HBoxContainer2/Edit" to="HBoxContainer2/Edit" method="_on_Edit_button_up"]
+[connection signal="button_up" from="HBoxContainer/Start" to="HBoxContainer/Start" method="_on_Start_button_up"]
+[connection signal="button_up" from="HBoxContainer/Stop" to="HBoxContainer/Stop" method="_on_Stop_button_up"]
 [connection signal="button_up" from="HBoxContainer/Done" to="HBoxContainer/Done" method="_on_Done_button_up"]
+[connection signal="timeout" from="UpdateStatus" to="UpdateStatus" method="_on_UpdateStatus_timeout"]

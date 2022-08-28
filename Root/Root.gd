@@ -1,7 +1,7 @@
 extends Node
 
-var tasks = []
-var intervals = []
+var tasks: Array
+var intervals
 
 
 func _load():
@@ -11,6 +11,8 @@ func _load():
 	interval_file.open("user://intervals.json", File.READ)
 	tasks = parse_json(task_file.get_as_text())
 	intervals = parse_json(interval_file.get_as_text())
+	if not intervals:
+		intervals = []
 	task_file.close()
 	interval_file.close()
 
@@ -49,6 +51,23 @@ func add_task(name: String, tags: PoolStringArray = []):
 	var task = {"id": _gen_id(), "name": name, "tags": tags}
 	tasks.append(task)
 	return task
+
+
+func start_interval(id: int):
+	if intervals and not intervals[-1]["end"]:
+		return
+	var interval = {"id": id, "start": Time.get_datetime_dict_from_system(), "end": {}}
+	intervals.append(interval)
+
+
+func stop_interval():
+	if intervals[-1]:
+		intervals[-1]["end"] = Time.get_datetime_dict_from_system()
+
+
+func get_current_interval():
+	if intervals and not intervals[-1]["end"]:
+		return intervals[-1]
 
 
 func get_task(id: int):

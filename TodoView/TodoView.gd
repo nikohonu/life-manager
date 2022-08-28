@@ -5,6 +5,8 @@ onready var root_item = tree.create_item()
 
 export var period: String
 
+const DAY = 60 * 60 * 24
+
 
 func get_item_selected() -> Array:
 	var item = tree.get_next_selected(null)
@@ -78,7 +80,7 @@ func _ready():
 	tree.set_column_title(0, "ID")
 	tree.set_column_expand(0, false)
 	tree.set_column_min_width(0, 90)
-	tree.set_column_title(1, "priority")
+	tree.set_column_title(1, "Priority")
 	tree.set_column_expand(1, false)
 	tree.set_column_min_width(1, 90)
 	tree.set_column_title(2, "Names")
@@ -89,12 +91,11 @@ func _ready():
 	tree.set_column_title(4, "Due")
 	tree.set_column_expand(4, false)
 	tree.set_column_min_width(4, 90)
-
 	tree.set_column_title(5, "Recurrence")
 	tree.set_column_expand(5, false)
-
 	tree.set_column_min_width(5, 90)
 	_update()
+	$UpdateStatus._on_UpdateStatus_timeout()
 
 
 func _set_due(id: int, due: Dictionary):
@@ -147,7 +148,7 @@ func get_recurrence(id: int):
 	var recurrences = Root.get_namespace_subtag(id, "recurrence")
 	if recurrences:
 		return {
-			"interval": recurrences[0].left(len(recurrences[0]) - 1),
+			"interval": int(recurrences[0].left(len(recurrences[0]) - 1)),
 			"unit": recurrences[0].right(len(recurrences[0]) - 1)
 		}
 	return {}
@@ -176,6 +177,30 @@ func update_todo(id, name: String, due: Dictionary, priority: String, recurrence
 
 
 func complete(id: int):
-	Root.untag_task_namespace(id, "status")
-	Root.tag_task(id, "status:completed")
-	_update()
+	var task = Root.get_task(id)
+	var recurrence = get_recurrence(id)
+	if not recurrence:
+		Root.untag_task_namespace(id, "status")
+		Root.tag_task(id, "status:completed")
+		_update()
+	else:
+		var due = get_due(id)
+		due = due if due else Time.get_datetime_dict_from_system()
+		var interval: int
+		match recurrence["unit"]:
+			"d":
+				interval = recurrence["interval"]
+			"w":
+				interval = recurrence["interval"] * 7
+			"m":
+				interval = recurrence["interval"] * 7 * 4
+			"y":
+				interval = recurrence["interval"] * 7 * 4 * 12
+			_:
+				return
+		print(due, recurrence, interval)
+		var time = Time.get_unix_time_from_datetime_dict(due)
+		time += interval * DAY
+		due = Time.get_date_dict_from_unix_time(time)
+		_set_due(id, due)
+		_update()
