@@ -17,7 +17,7 @@ func _ready():
 func _on_Edit_button_up():
 	var selected = task_view.get_item_selected()
 	if selected:
-		var task = Root.get_task(int(selected[0].get_text(0)))
+		var task = Task.get_task(int(selected[0].get_text(0)))
 		id = task["id"]
 		edit_task.popup_centered()
 		edit_task.clear()

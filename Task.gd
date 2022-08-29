@@ -1,31 +1,22 @@
 extends Node
 
-var tasks: Array
-var intervals
+var tasks
 
 
 func _load():
 	var task_file = File.new()
-	var interval_file = File.new()
 	task_file.open("user://tasks.json", File.READ)
-	interval_file.open("user://intervals.json", File.READ)
 	tasks = parse_json(task_file.get_as_text())
-	intervals = parse_json(interval_file.get_as_text())
-	if not intervals:
-		intervals = []
+	if not tasks:
+		tasks = []
 	task_file.close()
-	interval_file.close()
 
 
 func _save():
 	var task_file = File.new()
-	var interval_file = File.new()
 	task_file.open("user://tasks.json", File.WRITE)
-	interval_file.open("user://intervals.json", File.WRITE)
 	task_file.store_string(to_json(tasks))
-	interval_file.store_string(to_json(intervals))
 	task_file.close()
-	interval_file.close()
 
 
 func _ready():
@@ -53,23 +44,6 @@ func add_task(name: String, tags: PoolStringArray = []):
 	return task
 
 
-func start_interval(id: int):
-	if intervals and not intervals[-1]["end"]:
-		return
-	var interval = {"id": id, "start": Time.get_datetime_dict_from_system(), "end": {}}
-	intervals.append(interval)
-
-
-func stop_interval():
-	if intervals[-1]:
-		intervals[-1]["end"] = Time.get_datetime_dict_from_system()
-
-
-func get_current_interval():
-	if intervals and not intervals[-1]["end"]:
-		return intervals[-1]
-
-
 func get_task(id: int):
 	for task in tasks:
 		if task["id"] == id:
@@ -87,12 +61,16 @@ func remove_task(id: int):
 	tasks.remove(tasks.find(get_task(id)))
 
 
-func tag_task(id: int, tag: String):
+func tag(tags: PoolStringArray, tag: String):
+	var new_tags = tags  # try directly
+	if not tag in new_tags:
+		new_tags.append(tag)
+	return new_tags
+
+
+func tag_by_id(id: int, tag: String):
 	var task = get_task(id)
-	var tags = task["tags"]
-	if not tag in tags:
-		tags.append(tag)
-	task["tags"] = tags
+	task["tags"] = tag(task["tags"], tag)
 
 
 func untag_task(id: int, tag: String):
@@ -104,19 +82,27 @@ func untag_task(id: int, tag: String):
 	task["tags"] = new_tags
 
 
-func untag_task_namespace(id: int, namespace: String):
-	var task = get_task(id)
+func untag_namespace(tags: PoolStringArray, namespace: String):
 	var new_tags = PoolStringArray()
-	for tag in task["tags"]:
+	for tag in tags:
 		if not tag.begins_with(namespace + ":"):
 			new_tags.append(tag)
-	task["tags"] = new_tags
+	return new_tags
 
 
-func get_namespace_subtag(id: int, namespace: String):
+func untag_namespace_by_id(id: int, namespace: String):
 	var task = get_task(id)
+	task["tags"] = untag_namespace(task["tags"], namespace)
+
+
+func get_namespace_subtags(tags, namespace: String):
 	var result = PoolStringArray()
-	for tag in task["tags"]:
+	for tag in tags:
 		if tag.begins_with(namespace + ":"):
 			result.append(tag.right(len(namespace) + 1))
 	return result
+
+
+func get_namespace_subtags_by_id(id: int, namespace: String):
+	var task = get_task(id)
+	return get_namespace_subtags(task["tags"], namespace)

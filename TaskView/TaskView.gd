@@ -13,7 +13,7 @@ func _ready():
 	tasks_tree.set_column_expand(0, false)
 	tasks_tree.set_column_min_width(0, 100)
 
-	for task in Root.tasks:
+	for task in Task.tasks:
 		load_task(task)
 
 
@@ -24,7 +24,7 @@ func load_task(task: Dictionary):
 
 
 func add_task(name: String, tags: PoolStringArray):
-	var task = Root.add_task(name, tags)
+	var task = Task.add_task(name, tags)
 	var item = tasks_tree.create_item(tasks_root_item)
 	item.set_text(0, String(task["id"]))
 	item.set_text(1, task["name"])
@@ -37,7 +37,7 @@ func get_item(id: int):
 
 
 func update_task(id: int, name: String, tags: PoolStringArray):
-	Root.update_task(id, name, tags)
+	Task.update_task(id, name, tags)
 	get_item(id).set_text(1, name)
 
 
@@ -67,7 +67,7 @@ func _on_Tasks_gui_input(event):
 				item.deselect(1)
 		if event.pressed and event.scancode == KEY_DELETE:
 			for item in get_item_selected():
-				Root.remove_task(int(item.get_text(0)))
+				Task.remove_task(int(item.get_text(0)))
 				item.free()
 				tasks_tree.update()
 		if event.pressed and event.scancode == KEY_A and event.control:
@@ -88,7 +88,7 @@ func _update_tag(force: bool = false):
 	old_items = items.duplicate()
 
 	for item in items:
-		var task = Root.get_task(int(item.get_text(0)))
+		var task = Task.get_task(int(item.get_text(0)))
 		for tag in task["tags"]:
 			if not tag in tags:
 				tags.append(tag)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://TodoView/TodoView.gd" type="Script" id=1]
 [ext_resource path="res://TodoView/Edit.gd" type="Script" id=2]
@@ -7,6 +7,7 @@
 [ext_resource path="res://TodoView/Start.gd" type="Script" id=5]
 [ext_resource path="res://TodoView/Stop.gd" type="Script" id=6]
 [ext_resource path="res://TodoView/UpdateStatus.gd" type="Script" id=7]
+[ext_resource path="res://TodoView/Tree.gd" type="Script" id=8]
 
 [node name="TodoView" type="VBoxContainer"]
 anchor_right = 1.0
@@ -34,7 +35,7 @@ margin_bottom = 22.0
 text = "Edit"
 script = ExtResource( 2 )
 
-[node name="Todo" type="Tree" parent="."]
+[node name="Tree" type="Tree" parent="."]
 margin_top = 26.0
 margin_right = 1016.0
 margin_bottom = 540.0
@@ -43,6 +44,7 @@ columns = 6
 column_titles_visible = true
 hide_root = true
 select_mode = 2
+script = ExtResource( 8 )
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 margin_top = 544.0

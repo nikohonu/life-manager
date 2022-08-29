@@ -1,6 +1,6 @@
 extends WindowDialog
 
-signal confirmed(name, due, priority, recurrence)
+signal confirmed(name, tags)
 
 onready var name_edit = $MarginContainer/VBoxContainer/GridContainer/NameLineEdit
 onready var due_check_box = $MarginContainer/VBoxContainer/GridContainer/Due/CheckBox
@@ -36,49 +36,6 @@ func get_number_of_days(month: int, year: int):
 		return 30
 
 
-func clear():
-	var datetime = Time.get_datetime_dict_from_system()
-	name_edit.clear()
-	due_check_box.pressed = false
-	year_option._select_int(0)
-	month_option._select_int(datetime["month"] - 1)
-	day_option._select_int(datetime["day"] - 1)
-	priority_check_box.pressed = false
-	priority_option._select_int(0)
-	recurrence_check_box.pressed = false
-	recurrence_edit.text = "1"
-	recurrence_option._select_int(0)
-	self._on_CheckBox_pressed()
-
-
-func init_edit(name: String, due: Dictionary, priority: String, recurrence: Dictionary):
-	window_title = "Edit todo"
-	$MarginContainer/VBoxContainer/HBoxContainer/Confirm.text = "Save"
-	var datetime = Time.get_datetime_dict_from_system()
-	name_edit.text = name
-	if due:
-		year_option._select_int(due["year"] - datetime["year"])
-		month_option._select_int(due["month"] - 1)
-		day_option._select_int(due["day"] - 1)
-		due_check_box.pressed = true
-	if priority:
-		priority_option._select_int(letters[priority])
-		priority_check_box.pressed = true
-	if recurrence:
-		recurrence_edit.text = String(recurrence["interval"])
-		match recurrence["unit"]:
-			"d":
-				recurrence_option._select_int(0)
-			"w":
-				recurrence_option._select_int(1)
-			"m":
-				recurrence_option._select_int(2)
-			"y":
-				recurrence_option._select_int(3)
-		recurrence_check_box.pressed = true
-	self._on_CheckBox_pressed()
-
-
 func _ready():
 	var datetime = Time.get_datetime_dict_from_system()
 	for year in range(datetime["year"], datetime["year"] + 11):
@@ -97,6 +54,53 @@ func _ready():
 		i += 1
 
 
+func clear():
+	var datetime = Time.get_datetime_dict_from_system()
+	name_edit.clear()
+	due_check_box.pressed = false
+	year_option._select_int(0)
+	month_option._select_int(datetime["month"] - 1)
+	day_option._select_int(datetime["day"] - 1)
+	priority_check_box.pressed = false
+	priority_option._select_int(0)
+	recurrence_check_box.pressed = false
+	recurrence_edit.text = "1"
+	recurrence_option._select_int(0)
+	self._on_CheckBox_pressed()
+
+
+func init_edit(task: Dictionary):
+	window_title = "Edit todo"
+	$MarginContainer/VBoxContainer/HBoxContainer/Confirm.text = "Save"
+	var datetime = Time.get_datetime_dict_from_system()
+	name_edit.text = task["name"]
+	var dues = Task.get_namespace_subtags(task["tags"], "due")
+	if dues:
+		var date = Time.get_datetime_dict_from_datetime_string("%sT00:00:00" % dues[0], false)
+		year_option._select_int(date["year"] - datetime["year"])
+		month_option._select_int(date["month"] - 1)
+		day_option._select_int(date["day"] - 1)
+		due_check_box.pressed = true
+	var priorities = Task.get_namespace_subtags(task["tags"], "priority")
+	if priorities:
+		priority_option._select_int(letters[priorities[0]])
+		priority_check_box.pressed = true
+	var recurrences = Task.get_namespace_subtags(task["tags"], "recurrence")
+	if recurrences:
+		recurrence_edit.text = recurrences[0].left(len(recurrences[0]) - 1)
+		match recurrences[0].right(len(recurrences[0]) - 1):
+			"d":
+				recurrence_option._select_int(0)
+			"w":
+				recurrence_option._select_int(1)
+			"m":
+				recurrence_option._select_int(2)
+			"y":
+				recurrence_option._select_int(3)
+		recurrence_check_box.pressed = true
+	self._on_CheckBox_pressed()
+
+
 func get_selected_text(option_button: OptionButton):
 	return option_button.get_item_text(option_button.get_selected_id())
 
@@ -104,32 +108,28 @@ func get_selected_text(option_button: OptionButton):
 func _on_Confirm_button_up():
 	var name = name_edit.text
 	if name:
-		var due = (
-			{
-				"year": int(get_selected_text(year_option)),
-				"month": int(get_selected_text(month_option)),
-				"day": int(get_selected_text(day_option)),
-			}
-			if due_check_box.pressed
-			else {}
-		)
-		var priority = (
-			get_selected_text(priority_option).to_lower()
-			if priority_check_box.pressed
-			else ""
-		)
-		var recurrence = (
-			{
-				"interval": int(recurrence_edit.text),
-				"unit": get_selected_text(recurrence_option).left(1)
-			}
-			if recurrence_check_box.pressed
-			else {}
-		)
-		if not recurrence.empty():
-			if recurrence["interval"] <= 0:
+		var tags = PoolStringArray()
+		if due_check_box.pressed:
+			tags.append(
+				(
+					"due:%s-%02d-%02d"
+					% [
+						get_selected_text(year_option),
+						int(get_selected_text(month_option)),
+						int(get_selected_text(day_option))
+					]
+				)
+			)
+		if priority_check_box.pressed:
+			tags.append("priority:%s" % get_selected_text(priority_option).to_lower())
+		if recurrence_check_box.pressed:
+			var interval = int(recurrence_edit.text)
+			if interval <= 0:
 				return
-		emit_signal("confirmed", name, due, priority, recurrence)
+			tags.append(
+				"recurrence:%d%s" % [interval, get_selected_text(recurrence_option).left(1)]
+			)
+		emit_signal("confirmed", name, tags)
 		hide()
 
 

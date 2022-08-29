@@ -1,11 +1,8 @@
 extends Button
 
-onready var todo_view = $"../.."
-
-
-func _ready():
-	pass
+onready var tree = $"../../Tree"
 
 
 func _on_Stop_button_up():
-	Root.stop_interval()
+	Interval.stop_interval()
+	tree.update_items()
